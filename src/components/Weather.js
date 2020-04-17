@@ -1,8 +1,6 @@
 import React, {Component} from 'react';
 import axios from 'axios';
 
-// https://api.weatherbit.io/v2.0/current?lat=37.5287313&lon=126.7257212&key=194a7c6e211a4c78a09836a0b4963b62
-// https://api.weatherbit.io/v2.0/forecast/daily?lat=37.5287313&lon=126.7257212&key=194a7c6e211a4c78a09836a0b4963b62
 const currentWeatherApi = process.env.REACT_APP_WEATHER_API_KEY;
 const lat = 37.5287313;
 const lon = 126.7257212;
