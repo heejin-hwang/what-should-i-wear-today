@@ -11,63 +11,112 @@ class Weather extends Component {
         this.state = {
             currentTemp: '',
             cityName: '',
+            todayDate: '',
             maxTemp: '',
             minTemp: '',
+            yesterdayDate: '',
+            yesterdayMaxTemp: '',
+            compareWeather: ''
         }
-        console.log('constructor!!!!!!!!!!!!!!!!!!!!!!!!')
     }
 
-   
     componentDidMount() {
-        console.log('componentDidMount!!!!!!!!!!!!!!!!!!!!!!!!')
         this.getCurrentWeather();
-    }
-
-    componentDidUpdate() {
-        console.log('componentDidUpdate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        this.getForecastWeather();
+        this.getYesterdayDate();
     }
 
     getCurrentWeather() {
-        console.log("1 ::", currentWeatherApi);
-        console.log("this::::::" ,this);
         axios.get(`https://api.weatherbit.io/v2.0/current?lat=${lat}&lon=${lon}&key=${currentWeatherApi}`)
         .then(response => {
             const currentData = response.data.data[0];
-            console.log(response.data);
-            console.log(currentData);
-            console.log("머야!!!!!!!", currentData.temp);
             this.setState ({
                 currentTemp : currentData.temp,
-                cityName: currentData.city_name
+                cityName: currentData.city_name,
             })
-        }
-        
-        )
+        })
         .catch(err => console.log(err));
-        console.log("currentTemp::",this.state.currentTemp);
-        console.log("this::::::" ,this);
     }
 
+
     getForecastWeather() {
-        axios.get(`https://api.weatherbit.io/v2.0/forecast/daily?lat=${lat}&lon=${lon}&key=${currentWeatherApi}`)
-        .then(response => {
-            console.log(response.data);
-        }
-        
-        )
+        axios.get(`https://api.weatherbit.io/v2.0/forecast/daily?days=7&lat=${lat}&lon=${lon}&key=${currentWeatherApi}`)
+        .then(async response => {
+            const todayData = response.data.data[0];
+            this.setState({
+                todayDate: todayData.datetime,
+                maxTemp: todayData.max_temp,
+                minTemp: todayData.min_temp
+            })
+            await this.getYesterdayWeather();
+            
+        })
         .catch(err => console.log(err));
     }
+
+    getYesterdayDate() {
+        const nowDate = new Date();
+        const yesterdayDate = nowDate.getTime() - (1*24*60*60*1000);
+        nowDate.setTime(yesterdayDate);
+
+        const year = nowDate.getFullYear();
+        let month = nowDate.getMonth() + 1;
+        let day = nowDate.getDate();
+
+        if(month < 10) {
+            month = "0" + month;
+        }
+        if(day < 10) {
+            day = "0" + day; 
+        }
+
+        const resultData = `${year}-${month}-${day}`;
+        this.setState({
+            yesterdayDate: resultData
+        })
+    }
+
+    getYesterdayWeather() {
+        axios.get(`https://api.weatherbit.io/v2.0/history/daily?start_date=${this.state.yesterdayDate}&end_date=${this.state.todayDate}&lat=${lat}&lon=${lon}&key=${currentWeatherApi}`)
+        .then(response => {
+            const yesterdayData = response.data.data[0];
+            this.setState({
+                yesterdayMaxTemp: yesterdayData.max_temp
+            })
+            this.getCompareWithYesterday();
+        })
+        .catch(err => console.log(err));
+    }
+
+    getCompareWithYesterday() {
+        let compareWeather;
+
+        if(this.state.maxTemp > this.state.yesterdayMaxTemp) {
+            compareWeather = `어제보다 ${this.state.maxTemp-this.state.yesterdayMaxTemp} 높아요.`
+            
+        } else if (this.state.maxTemp < this.state.yesterdayMaxTemp) {
+            compareWeather = `어제보다 ${this.state.yesterdayMaxTemp-this.state.maxTemp} 낮아요.`
+        } else {
+            compareWeather = '어제와 같아요.'
+        }
+        this.setState({
+            compareWeather: compareWeather
+        })
+    }
+
     
     
     render() {
-        const { currentTemp, cityName } = this.state;
-        console.log('render!!!!!!!!!!!!!!!!!!!!!!!!')
+        const { currentTemp, cityName, todayDate, maxTemp, minTemp, compareWeather } = this.state;
         
         return (
             <>
                 <h1 style={{border:'3px solid blue'}}>Weather</h1>
+                {todayDate}
                 <h4>{cityName}</h4>
                 <h1>{currentTemp}˚</h1>
+                <h3>{minTemp}˚/{maxTemp}˚</h3>
+                {compareWeather}
             </>
         );
     }
