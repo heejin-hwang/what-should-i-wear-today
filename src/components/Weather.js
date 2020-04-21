@@ -92,10 +92,10 @@ class Weather extends Component {
         let compareWeather;
 
         if(this.state.maxTemp > this.state.yesterdayMaxTemp) {
-            compareWeather = `어제보다 ${this.state.maxTemp-this.state.yesterdayMaxTemp} 높아요.`
+            compareWeather = `어제보다 ${Math.floor(this.state.maxTemp-this.state.yesterdayMaxTemp)}˚ 높아요.`
             
         } else if (this.state.maxTemp < this.state.yesterdayMaxTemp) {
-            compareWeather = `어제보다 ${this.state.yesterdayMaxTemp-this.state.maxTemp} 낮아요.`
+            compareWeather = `어제보다 ${Math.floor(this.state.yesterdayMaxTemp-this.state.maxTemp)}˚ 낮아요.`
         } else {
             compareWeather = '어제와 같아요.'
         }
@@ -115,7 +115,7 @@ class Weather extends Component {
                 {todayDate}
                 <h4>{cityName}</h4>
                 <h1>{currentTemp}˚</h1>
-                <h3>{minTemp}˚/{maxTemp}˚</h3>
+                <h3>최저 {minTemp}˚/ 최고 {maxTemp}˚</h3>
                 {compareWeather}
             </>
         );
