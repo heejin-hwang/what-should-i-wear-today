@@ -111,7 +111,6 @@ class Weather extends Component {
         
         return (
             <>
-                <h1 style={{border:'3px solid blue'}}>Weather</h1>
                 {todayDate}
                 <h4>{cityName}</h4>
                 <h1>{currentTemp}˚</h1>
