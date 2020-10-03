@@ -1,10 +1,10 @@
-import React, {Component} from 'react';
+import React from 'react';
 
-class Clothes extends Component {
+const Clothes = () => {
 
-    render() {
-        return (<h1 style={{border:'3px solid blue'}}>Clothes</h1>);
-    }
+        return (
+        <h1>Clothes</h1>
+        );
 }
 
 export default Clothes;

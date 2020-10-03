@@ -1,36 +1,33 @@
-import React, {Component} from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 const currentWeatherApi = process.env.REACT_APP_WEATHER_API_KEY;
 const lat = 37.5287313;
 const lon = 126.7257212;
 
-class Weather extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            currentTemp: '',
-            cityName: '',
-            todayDate: '',
-            maxTemp: '',
-            minTemp: '',
-            yesterdayDate: '',
-            yesterdayMaxTemp: '',
-            compareWeather: ''
-        }
-    }
+const Weather = () => {
+    const [state, setState] = useState({
+        currentTemp: '',
+        cityName: '',
+        todayDate: '',
+        maxTemp: '',
+        minTemp: '',
+        yesterdayDate: '',
+        yesterdayMaxTemp: '',
+        compareWeather: ''
+    })
 
-    componentDidMount() {
-        this.getCurrentWeather();
-        this.getForecastWeather();
-        this.getYesterdayDate();
-    }
+    useEffect(() => {
+        getCurrentWeather();
+        getForecastWeather();
+        getYesterdayDate();
+    }, [])
 
-    getCurrentWeather() {
+    const getCurrentWeather = () => {
         axios.get(`https://api.weatherbit.io/v2.0/current?lat=${lat}&lon=${lon}&key=${currentWeatherApi}`)
         .then(response => {
             const currentData = response.data.data[0];
-            this.setState ({
+            setState ({...state, 
                 currentTemp : currentData.temp,
                 cityName: currentData.city_name,
             })
@@ -39,22 +36,22 @@ class Weather extends Component {
     }
 
 
-    getForecastWeather() {
+    const getForecastWeather = () => {
         axios.get(`https://api.weatherbit.io/v2.0/forecast/daily?days=7&lat=${lat}&lon=${lon}&key=${currentWeatherApi}`)
         .then(async response => {
             const todayData = response.data.data[0];
-            this.setState({
+            setState ({...state, 
                 todayDate: todayData.datetime,
                 maxTemp: todayData.max_temp,
                 minTemp: todayData.min_temp
             })
-            await this.getYesterdayWeather();
+            await getYesterdayWeather();
             
         })
         .catch(err => console.log(err));
     }
 
-    getYesterdayDate() {
+    const getYesterdayDate = () => {
         const nowDate = new Date();
         const yesterdayDate = nowDate.getTime() - (1*24*60*60*1000);
         nowDate.setTime(yesterdayDate);
@@ -71,54 +68,51 @@ class Weather extends Component {
         }
 
         const resultData = `${year}-${month}-${day}`;
-        this.setState({
+        setState ({...state, 
             yesterdayDate: resultData
         })
     }
 
-    getYesterdayWeather() {
-        axios.get(`https://api.weatherbit.io/v2.0/history/daily?start_date=${this.state.yesterdayDate}&end_date=${this.state.todayDate}&lat=${lat}&lon=${lon}&key=${currentWeatherApi}`)
+    const getYesterdayWeather = () => {
+        axios.get(`https://api.weatherbit.io/v2.0/history/daily?start_date=${state.yesterdayDate}&end_date=${state.todayDate}&lat=${lat}&lon=${lon}&key=${currentWeatherApi}`)
         .then(response => {
             const yesterdayData = response.data.data[0];
-            this.setState({
+            setState ({...state, 
                 yesterdayMaxTemp: yesterdayData.max_temp
             })
-            this.getCompareWithYesterday();
+            getCompareWithYesterday();
         })
         .catch(err => console.log(err));
     }
 
-    getCompareWithYesterday() {
+    const getCompareWithYesterday = () => {
         let compareWeather;
 
-        if(this.state.maxTemp > this.state.yesterdayMaxTemp) {
-            compareWeather = `어제보다 ${Math.floor(this.state.maxTemp-this.state.yesterdayMaxTemp)}˚ 높아요.`
+        if(state.maxTemp > state.yesterdayMaxTemp) {
+            compareWeather = `어제보다 ${Math.floor(state.maxTemp-state.yesterdayMaxTemp)}˚ 높아요.`
             
-        } else if (this.state.maxTemp < this.state.yesterdayMaxTemp) {
-            compareWeather = `어제보다 ${Math.floor(this.state.yesterdayMaxTemp-this.state.maxTemp)}˚ 낮아요.`
+        } else if (state.maxTemp < state.yesterdayMaxTemp) {
+            compareWeather = `어제보다 ${Math.floor(state.yesterdayMaxTemp-state.maxTemp)}˚ 낮아요.`
         } else {
             compareWeather = '어제와 같아요.'
         }
-        this.setState({
+        setState ({...state, 
             compareWeather: compareWeather
         })
     }
 
     
     
-    render() {
-        const { currentTemp, cityName, todayDate, maxTemp, minTemp, compareWeather } = this.state;
         
         return (
             <>
-                {todayDate}
-                <h4>{cityName}</h4>
-                <h1>{currentTemp}˚</h1>
-                <h3>최저 {minTemp}˚/ 최고 {maxTemp}˚</h3>
-                {compareWeather}
+                {state.todayDate}
+                <h4>{state.cityName}</h4>
+                <h1>{state.currentTemp}˚</h1>
+                <h3>최저 {state.minTemp}˚/ 최고 {state.maxTemp}˚</h3>
+                {state.compareWeather}
             </>
         );
-    }
 }
 
 export default Weather;
