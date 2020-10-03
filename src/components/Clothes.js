@@ -1,10 +1,13 @@
 import React from 'react';
 
-const Clothes = () => {
+const Clothes = props => {
+  const { currentTemp } = props;
 
-        return (
-        <h1>Clothes</h1>
-        );
-}
+  return (
+    <>
+      <img src={`/images/clothesIcon/noun_Scarf_2133614.png`} />
+    </>
+  );
+};
 
 export default Clothes;
