@@ -14,7 +14,7 @@ const App = () => {
           <Weather />
         </Grid>
         <Grid item>
-          <Example />
+          {/*<Example />*/}
         </Grid>
       </Grid>
     </>
